@@ -1,0 +1,16 @@
+{
+  "name": "AI Photo Studio",
+  "short_name": "Photo Studio",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#111827",
+  "description": "AI photo generator and browser photo editor with ratio, KB and custom file name export.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

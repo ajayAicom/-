@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Photo Studio - Free GitHub App</title>
+  <meta name="description" content="GitHub Pages friendly AI photo generator and browser photo editor with aspect ratio, custom file name and target KB export." />
+  <meta name="theme-color" content="#111827" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Free GitHub Pages Project</p>
+      <h1>AI Photo Studio</h1>
+      <p class="sub">Photo generate karo, uploaded photo edit karo, ratio set karo, KB set karo, aur file name apne hisab se rakho.</p>
+    </div>
+    <button id="installBtn" class="ghost" hidden>Install App</button>
+  </header>
+
+  <main class="shell">
+    <section class="card hero-card">
+      <div>
+        <h2>Text se AI photo banao</h2>
+        <p>Prompt likho, ratio/size choose karo, aur generated photo download karo. Private API key frontend me mat daalna.</p>
+      </div>
+      <div class="status" id="apiStatus">Ready</div>
+    </section>
+
+    <section class="grid two">
+      <div class="card panel">
+        <h3>1. AI Image Generator</h3>
+        <label for="promptInput">Prompt</label>
+        <textarea id="promptInput" rows="5" placeholder="Example: premium realistic birthday cake photo, white background, studio light, no text"></textarea>
+
+        <div class="grid form-grid">
+          <div>
+            <label for="styleSelect">Style</label>
+            <select id="styleSelect">
+              <option value="realistic studio photography, sharp focus">Realistic</option>
+              <option value="cinematic lighting, ultra detailed, professional">Cinematic</option>
+              <option value="luxury product photography, clean background">Product</option>
+              <option value="cartoon style, clean outline, cute">Cartoon</option>
+              <option value="minimal app icon, centered, vector look">App Icon</option>
+            </select>
+          </div>
+          <div>
+            <label for="genRatioSelect">Frame / Ratio</label>
+            <select id="genRatioSelect">
+              <option value="1:1" selected>1:1 Square</option>
+              <option value="9:16">9:16 Reel / Story</option>
+              <option value="16:9">16:9 Landscape</option>
+              <option value="4:5">4:5 Portrait Post</option>
+              <option value="custom">Custom Size</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid form-grid">
+          <div>
+            <label for="genWidth">AI Width</label>
+            <input id="genWidth" type="number" min="256" max="2048" value="1024" />
+          </div>
+          <div>
+            <label for="genHeight">AI Height</label>
+            <input id="genHeight" type="number" min="256" max="2048" value="1024" />
+          </div>
+        </div>
+
+        <label for="genFileName">Download file name</label>
+        <input id="genFileName" type="text" value="ai-photo" placeholder="jaise: birthday-cake" />
+
+        <div class="actions">
+          <button id="generateBtn">Generate Photo</button>
+          <button id="downloadGenBtn" class="secondary" disabled>Download</button>
+        </div>
+
+        <details class="hint">
+          <summary>Prompt help</summary>
+          <p>Better result ke liye: subject + style + background + light + size + “no text/no watermark” likho.</p>
+        </details>
+      </div>
+
+      <div class="card preview-card">
+        <div class="preview-head">
+          <h3>Generated Preview</h3>
+          <span id="genMeta">No image</span>
+        </div>
+        <div class="image-box">
+          <img id="generatedImage" alt="Generated preview" hidden />
+          <div id="genEmpty" class="empty">Yahan generated photo dikhegi</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card panel">
+        <h3>2. Uploaded Photo Editor</h3>
+        <label for="photoUpload">Photo upload</label>
+        <div id="dropZone" class="drop-zone">
+          <input id="photoUpload" type="file" accept="image/*" />
+          <p>Photo choose karo ya yahan drag & drop karo</p>
+        </div>
+
+        <div class="grid form-grid">
+          <div>
+            <label for="ratioSelect">Frame / Ratio</label>
+            <select id="ratioSelect">
+              <option value="original">Original</option>
+              <option value="1:1" selected>1:1 Square</option>
+              <option value="9:16">9:16 Reel / Story</option>
+              <option value="16:9">16:9 Landscape</option>
+              <option value="4:5">4:5 Portrait Post</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div>
+            <label for="fitMode">Photo Fit</label>
+            <select id="fitMode">
+              <option value="cover" selected>Crop / Cover</option>
+              <option value="contain">Full Photo / Padding</option>
+              <option value="stretch">Stretch</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid form-grid">
+          <div>
+            <label for="outWidth">Width</label>
+            <input id="outWidth" type="number" min="100" max="5000" value="1024" />
+          </div>
+          <div>
+            <label for="outHeight">Height</label>
+            <input id="outHeight" type="number" min="100" max="5000" value="1024" />
+          </div>
+        </div>
+
+        <div class="grid form-grid">
+          <div>
+            <label for="bgColor">Padding Background</label>
+            <input id="bgColor" type="color" value="#ffffff" />
+          </div>
+          <div>
+            <label for="targetKB">Target KB optional</label>
+            <input id="targetKB" type="number" min="20" max="5000" placeholder="jaise: 190" />
+          </div>
+        </div>
+        <p class="small">Target KB JPG/WEBP me best kaam karta hai. PNG me exact KB possible nahi hota.</p>
+
+        <div class="sliders">
+          <label for="brightness">Brightness <span id="brightnessVal">100%</span></label>
+          <input id="brightness" type="range" min="50" max="180" value="100" />
+
+          <label for="contrast">Contrast <span id="contrastVal">100%</span></label>
+          <input id="contrast" type="range" min="50" max="180" value="100" />
+
+          <label for="saturation">Saturation <span id="saturationVal">100%</span></label>
+          <input id="saturation" type="range" min="0" max="220" value="100" />
+
+          <label for="blur">Blur <span id="blurVal">0px</span></label>
+          <input id="blur" type="range" min="0" max="8" value="0" />
+        </div>
+
+        <div class="grid form-grid buttons-grid">
+          <button id="enhanceBtn" class="secondary">Auto Enhance</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+          <button id="rotateBtn" class="secondary">Rotate 90°</button>
+          <button id="flipBtn" class="secondary">Flip</button>
+        </div>
+
+        <div class="grid form-grid">
+          <div>
+            <label for="formatSelect">Format</label>
+            <select id="formatSelect">
+              <option value="image/jpeg">JPG</option>
+              <option value="image/png">PNG</option>
+              <option value="image/webp" selected>WEBP</option>
+            </select>
+          </div>
+          <div>
+            <label for="qualitySelect">Quality</label>
+            <select id="qualitySelect">
+              <option value="0.95">High</option>
+              <option value="0.82" selected>Balanced</option>
+              <option value="0.65">Small size</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="editFileName">Edited file name</label>
+        <input id="editFileName" type="text" value="edited-photo" placeholder="jaise: ajay-profile-photo" />
+
+        <div class="actions">
+          <button id="downloadEditBtn" disabled>Download Edited Photo</button>
+        </div>
+        <p id="downloadInfo" class="small"></p>
+      </div>
+
+      <div class="card preview-card">
+        <div class="preview-head">
+          <h3>Editor Preview</h3>
+          <span id="editMeta">Upload pending</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="editorCanvas"></canvas>
+          <div id="editEmpty" class="empty">Photo upload karne ke baad yahan preview dikhega</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <h3>3. Optional: Real AI Upload Edit Endpoint</h3>
+      <p class="small">GitHub Pages me secret key safe nahi hoti. Isliye yahan endpoint optional hai. Agar Cloudflare Worker/Node/Firebase backend banaoge, to uploaded image + prompt POST hoga aur edited image receive hogi.</p>
+      <div class="grid two endpoint-grid">
+        <div>
+          <label for="endpointUrl">Endpoint URL</label>
+          <input id="endpointUrl" type="url" placeholder="https://your-worker.workers.dev/edit-image" />
+        </div>
+        <div>
+          <label for="editPrompt">AI edit prompt</label>
+          <input id="editPrompt" type="text" placeholder="background change to blue clouds, natural skin, no AI look" />
+        </div>
+      </div>
+      <div class="actions">
+        <button id="aiEditBtn" class="secondary" disabled>Send to AI Edit Endpoint</button>
+      </div>
+      <p id="endpointResult" class="small"></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Made for GitHub Pages. Local editor server ke bina chalega. Private API keys kabhi public repo me commit mat karo.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
